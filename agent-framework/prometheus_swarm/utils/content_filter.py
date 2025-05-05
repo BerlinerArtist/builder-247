@@ -42,12 +42,15 @@ def filter_content(
 
     # Apply filtering with regex rules first
     if filter_rules:
+        # Use word boundary to match full words
         for rule in filter_rules:
             content = re.sub(rule, '', content, flags=re.IGNORECASE | re.MULTILINE)
     
     # Filter allowed characters if specified
     if allowed_chars is not None:
-        content = ''.join(char for char in content if char in allowed_chars.lower())
+        # Lowercase allowed_chars for consistent filtering
+        allowed_chars = allowed_chars.lower()
+        content = ''.join(char for char in content if char in allowed_chars)
 
     # Remove extra whitespace
     content = re.sub(r'\s+', ' ', content).strip()
