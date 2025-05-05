@@ -37,14 +37,17 @@ def filter_content(
     if not isinstance(content, str):
         raise ValueError("Content must be a string")
 
-    # Apply entire word filtering
+    # Convert to lowercase first
+    content = content.lower()
+
+    # Apply filtering with regex rules first
     if filter_rules:
         for rule in filter_rules:
             content = re.sub(rule, '', content, flags=re.IGNORECASE | re.MULTILINE)
     
     # Filter allowed characters if specified
     if allowed_chars is not None:
-        content = ''.join(char.lower() for char in content if char.lower() in allowed_chars)
+        content = ''.join(char for char in content if char in allowed_chars.lower())
 
     # Remove extra whitespace
     content = re.sub(r'\s+', ' ', content).strip()
