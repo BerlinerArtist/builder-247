@@ -37,21 +37,21 @@ def filter_content(
     if not isinstance(content, str):
         raise ValueError("Content must be a string")
 
-    # Apply maximum length filtering
-    if max_length is not None:
-        content = content[:max_length]
-
-    # Filter using regex rules
+    # Apply filtering with regex rules first
     if filter_rules:
         for rule in filter_rules:
             content = re.sub(rule, '', content, flags=re.IGNORECASE)
-
-    # Filter allowed characters
+    
+    # Filter allowed characters if specified
     if allowed_chars is not None:
-        content = ''.join(char for char in content if char in allowed_chars)
+        content = ''.join(char.lower() for char in content if char.lower() in allowed_chars)
 
     # Remove extra whitespace
     content = re.sub(r'\s+', ' ', content).strip()
+
+    # Apply maximum length filtering last
+    if max_length is not None:
+        content = content[:max_length]
 
     return content
 
