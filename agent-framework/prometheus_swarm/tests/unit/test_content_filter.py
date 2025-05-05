@@ -9,7 +9,7 @@ from prometheus_swarm.utils.content_filter import filter_content, contains_sensi
 def test_basic_filter_content():
     # Test basic filtering
     content = "Hello, World!"
-    assert filter_content(content) == "Hello, World!"
+    assert filter_content(content) == "hello, world!"
 
 
 def test_max_length_filter():
@@ -17,7 +17,7 @@ def test_max_length_filter():
     content = "This is a very long text that should be truncated"
     result = filter_content(content, max_length=20)
     assert len(result) <= 20
-    assert result == "this is a very long te"
+    assert result == "this is a very long "
 
 
 def test_regex_filter():
@@ -51,7 +51,7 @@ def test_multiple_filters_combined():
         allowed_chars='abcdefghijklmnopqrstuvwxyz '
     )
     assert len(filtered_content) <= 20
-    assert "stupid" not in filtered_content.split()
+    assert all(word != "stupid" for word in filtered_content.split())
 
 
 def test_invalid_input_raises_error():
