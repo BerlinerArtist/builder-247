@@ -37,10 +37,10 @@ def filter_content(
     if not isinstance(content, str):
         raise ValueError("Content must be a string")
 
-    # Apply filtering with regex rules first
+    # Apply entire word filtering
     if filter_rules:
         for rule in filter_rules:
-            content = re.sub(rule, '', content, flags=re.IGNORECASE)
+            content = re.sub(rule, '', content, flags=re.IGNORECASE | re.MULTILINE)
     
     # Filter allowed characters if specified
     if allowed_chars is not None:
