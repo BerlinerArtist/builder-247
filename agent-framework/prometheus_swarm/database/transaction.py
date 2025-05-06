@@ -13,7 +13,7 @@ from datetime import datetime
 import enum
 import uuid
 
-from .database import Base, SessionLocal, engine
+from .database import Base, SessionLocal, engine, get_db
 
 class TransactionStatus(enum.Enum):
     """Enum representing possible transaction statuses."""
@@ -39,8 +39,8 @@ class Transaction(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     amount = Column(Float, nullable=False)
     status = Column(Enum(TransactionStatus), nullable=False, default=TransactionStatus.PENDING)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now(datetime.UTC))
+    updated_at = Column(DateTime, default=datetime.now(datetime.UTC), onupdate=datetime.now(datetime.UTC))
     description = Column(String, nullable=True)
 
 class TransactionDAO:
@@ -75,7 +75,7 @@ class TransactionDAO:
         )
 
         try:
-            with SessionLocal() as session:
+            with get_db() as session:
                 session.add(transaction)
                 session.commit()
                 session.refresh(transaction)
@@ -93,12 +93,9 @@ class TransactionDAO:
 
         Returns:
             Optional[Transaction]: Transaction if found, None otherwise
-
-        Raises:
-            SQLAlchemyError: If database query fails
         """
         try:
-            with SessionLocal() as session:
+            with get_db() as session:
                 return session.query(Transaction).filter(Transaction.id == transaction_id).first()
         except SQLAlchemyError as e:
             raise RuntimeError(f"Failed to retrieve transaction: {str(e)}") from e
@@ -114,12 +111,9 @@ class TransactionDAO:
 
         Returns:
             Optional[Transaction]: Updated transaction, None if not found
-
-        Raises:
-            SQLAlchemyError: If database update fails
         """
         try:
-            with SessionLocal() as session:
+            with get_db() as session:
                 transaction = session.query(Transaction).filter(Transaction.id == transaction_id).first()
                 if transaction:
                     transaction.status = status
@@ -141,12 +135,9 @@ class TransactionDAO:
 
         Returns:
             List[Transaction]: List of transactions matching the criteria
-
-        Raises:
-            SQLAlchemyError: If database query fails
         """
         try:
-            with SessionLocal() as session:
+            with get_db() as session:
                 query = session.query(Transaction)
                 if status:
                     query = query.filter(Transaction.status == status)
@@ -164,12 +155,9 @@ class TransactionDAO:
 
         Returns:
             bool: True if transaction was deleted, False if not found
-
-        Raises:
-            SQLAlchemyError: If database deletion fails
         """
         try:
-            with SessionLocal() as session:
+            with get_db() as session:
                 transaction = session.query(Transaction).filter(Transaction.id == transaction_id).first()
                 if transaction:
                     session.delete(transaction)
